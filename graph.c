@@ -32,9 +32,9 @@ void showMap(Graph *graph) {
     {
         for (int j = 0; j < graph->numBuildings; j++)
         {
-            if(graph->adj[i][j] == 0) continue;
+            if(graph->distance[i][j] == 0) continue;
 
-            printf("%s <-> %s: %im \n", graph->names[i], graph->names[j], graph->adj[i][j]);
+            printf("%s <-> %s: %im \n", graph->names[i], graph->names[j], graph->distance[i][j]);
         }
     }
 }
@@ -106,7 +106,7 @@ void dijkstra(Graph *graph, int origin, int distances[], int previous[]) {
 
         // 3. Para cada vizinho, verifica se passar pelo predio mais proximo encurta o caminho ate ele e, se encurtar, atualiza a distancia e o anterior
         for (int j = 0; j < graph->numBuildings; j++) {
-            int distanceToNeighbor = graph->adj[closest][j];
+            int distanceToNeighbor = graph->distance[closest][j];
             if (distanceToNeighbor > 0 && !visited[j] && distances[closest] + distanceToNeighbor < distances[j]) {
                 distances[j] = distances[closest] + distanceToNeighbor;
                 previous[j] = closest;
@@ -145,4 +145,27 @@ int shortestRoute(Graph *graph, int origin, int destination, int path[], int *pa
     buildPath(previous, destination, path, pathSize);
 
     return distances[destination];
+}
+
+void calculateReachability(Graph *graph, int reachability[MAX_BUILDINGS][MAX_BUILDINGS]) {
+    // 1. Inicializa a matriz de alcançabilidade
+    for (int i = 0; i < graph->numBuildings; i++) {
+        for (int j = 0; j < graph->numBuildings; j++) {
+            reachability[i][j] =
+                (i == j || graph->distance[i][j] > 0);
+        }
+    }
+
+    // 2. Calcula a alcançabilidade com Floyd-Warshall
+    for (int intermediate = 0; intermediate < graph->numBuildings; intermediate++) {
+        for (int origin = 0; origin < graph->numBuildings; origin++) {
+            for (int destination = 0; destination < graph->numBuildings; destination++) {
+
+                if (reachability[origin][intermediate] && reachability[intermediate][destination]) {
+                    reachability[origin][destination] = 1;
+                }
+
+            }
+        }
+    }
 }

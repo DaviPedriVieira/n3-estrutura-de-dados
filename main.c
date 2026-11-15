@@ -9,6 +9,8 @@
 void showMenu();
 int readBuilding(Graph *graph, char *message);
 void findShortestRoute(Graph *graph);
+void verifyBuildingReachability(Graph *graph);
+void showReachabilityMatrix(Graph *graph);
 
 int main(void) {
     Graph campus;
@@ -21,6 +23,7 @@ int main(void) {
         showMenu();
 
         scanf("%i", &option);
+        fflush(stdin);
 
         switch (option) {
             case 1:
@@ -30,8 +33,10 @@ int main(void) {
                 findShortestRoute(&campus);
                 break;
             case 3:
+                verifyBuildingReachability(&campus);
                 break;
             case 4:
+                showReachabilityMatrix(&campus);
                 break;
             case 0:
                 printf("\nEncerrando...\n");
@@ -64,7 +69,7 @@ int readBuilding(Graph *graph, char *message) {
     char *numberEnd;
 
     printf("%s", message);
-    scanf(" %[^\n]", input);
+    scanf(" %29[^\n]", input);
 
     int typedNumber = strtol(input, &numberEnd, DECIMAL_BASE);
     int isNumber = numberEnd != input && *numberEnd == '\0';
@@ -105,3 +110,58 @@ void findShortestRoute(Graph *graph) {
     }
     printf("\nDistancia total: %i m\n", totalDistance);
 }
+
+void verifyBuildingReachability(Graph *graph) {
+    int reachability[MAX_BUILDINGS][MAX_BUILDINGS];
+
+    calculateReachability(graph, reachability);
+
+    showBuildings(graph);
+
+    int origin = readBuilding(graph, "\nOrigem (numero ou nome): ");
+    if (origin == -1) {
+        printf("\nPredio de origem nao encontrado!\n");
+        return;
+    }
+    
+    int destination = readBuilding(graph, "Destino (numero ou nome): ");
+    if (destination == -1) {
+        printf("\nPredio de destino nao encontrado!\n");
+        return;
+    }
+
+    if(reachability[origin][destination] == 1) {
+        printf("\nOs prédios %s e %s estão conectados.\n", graph->names[origin], graph->names[destination]);
+    } else {
+        printf("\nNao existe caminho entre %s e %s.\n", graph->names[origin], graph->names[destination]);
+    }
+}
+
+void showReachabilityMatrix(Graph *graph) {
+    int reachability[MAX_BUILDINGS][MAX_BUILDINGS];
+
+    calculateReachability(graph, reachability);
+
+    printf("\n========== MATRIZ DE ALCANCABILIDADE ==========\n\n");
+    printf("%15s", "");
+
+    for (int column = 0; column < graph->numBuildings; column++) {
+        printf("%15s", graph->names[column]);
+    }
+
+    printf("\n");
+
+    for (int row = 0; row < graph->numBuildings; row++) {
+        printf("%15s", graph->names[row]);
+
+        for (int column = 0; column < graph->numBuildings; column++) {
+            printf("%15d", reachability[row][column]);
+        }
+
+        printf("\n");
+    }
+
+    printf("\n1 - Existe caminho\n");
+    printf("0 - Nao existe caminho\n");
+}
+

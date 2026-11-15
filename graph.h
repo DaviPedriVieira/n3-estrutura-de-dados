@@ -9,7 +9,7 @@
 typedef struct {
     int numBuildings;
     char names[MAX_BUILDINGS][NAME_SIZE];
-    int adj[MAX_BUILDINGS][MAX_BUILDINGS];
+    int distance[MAX_BUILDINGS][MAX_BUILDINGS];
 } Graph;
 
 void initializeGraph(Graph *graph);
@@ -18,5 +18,6 @@ void showBuildings(Graph *graph);
 int findBuildingByName(Graph *graph, char *name);
 int findBuildingByNumber(Graph *graph, int number);
 int shortestRoute(Graph *graph, int origin, int destination, int path[], int *pathSize);
+void calculateReachability(Graph *graph, int reachability[MAX_BUILDINGS][MAX_BUILDINGS]);
 
 #endif
